@@ -900,88 +900,275 @@ function calculateAverage(arr) {
 }
 
 const fortunes = {
-    high_alpha: [
+    // Alpha fortunes
+    alpha_active: [
+        "Your relaxed focus brings sharp clarity to every task. Productive calm is your superpower.",
+        "Alert yet at peace, you navigate complexity with effortless precision.",
+        "Calm engagement unlocks creative problem-solving. Trust this balanced energy.",
+        "Gentle attention achieves what force cannot. Your steady presence opens all doors.",
+        "The art of relaxed concentration transforms ordinary moments into opportunities.",
+        "Peaceful awareness meets purposeful action. You master the balance few achieve."
+    ],
+    alpha_clear: [
         "Your relaxed mind opens to creative possibilities. Trust the calm clarity within.",
         "In stillness, solutions emerge naturally. Let your awareness guide you.",
-        "Creative energy flows when the mind is at peace. Embrace this moment."
+        "Creative energy flows when the mind is at peace. Embrace this moment.",
+        "Tranquil waters reflect the sky perfectly. Your calm mind mirrors wisdom.",
+        "Serenity becomes the canvas upon which inspiration paints its masterpiece.",
+        "Rest is not idleness—it is the space where your greatest ideas take form."
     ],
-    high_beta: [
+    alpha_meditation: [
+        "Deep relaxation meets inner knowing. Your peaceful mind touches profound wisdom.",
+        "In meditative flow, creativity and tranquility become one.",
+        "Serene awareness opens doorways to your most authentic insights.",
+        "The silence between thoughts holds secrets the noise never reveals.",
+        "In profound rest, your soul remembers what your mind forgot.",
+        "Peace deepens into revelation. You float in the ocean of consciousness itself."
+    ],
+    alpha_generic: [
+        "Calm creativity flows through your consciousness.",
+        "Your relaxed awareness moves with natural grace.",
+        "Peace and possibility dance together in your mind.",
+        "Gentle knowing guides you through the day. Trust the quiet voice.",
+        "Your inner stillness radiates outward, touching all you encounter.",
+        "Relaxation is not weakness—it is the power of water that shapes stone."
+    ],
+
+    // Beta fortunes
+    beta_active: [
         "Your active mind cuts through complexity with precision and focus.",
         "Problem-solving comes naturally when your awareness is sharp and engaged.",
-        "Mental agility leads to breakthrough moments. Stay alert to opportunities."
+        "Mental agility leads to breakthrough moments. Stay alert to opportunities.",
+        "Lightning-quick perception illuminates what others overlook. Strike while the iron glows.",
+        "Your razor-sharp attention carves pathways through impossible terrain.",
+        "Dynamic thinking meets determined action. The world bends to your clarity."
     ],
-    high_gamma: [
+    beta_clear: [
+        "Focused clarity brings elegant solutions to complex challenges.",
+        "Your alert yet calm mind sees patterns others miss.",
+        "Balanced thinking transforms obstacles into stepping stones.",
+        "Poised awareness cuts through confusion like a blade through silk.",
+        "Steady observation reveals the hidden order within apparent chaos.",
+        "Your composed attention finds the thread that unravels every knot."
+    ],
+    beta_meditation: [
+        "Active consciousness meets inner stillness. Rare insight emerges from this union.",
+        "Your engaged mind discovers peace within motion—a paradox that reveals truth.",
+        "Alert meditation unlocks wisdom hidden in the dance of thought and silence.",
+        "The eye of the hurricane: perfect calm surrounded by dynamic force.",
+        "Moving meditation reveals truths that sitting never could. Walk the razor's edge.",
+        "Stillness within action—the warrior's secret, the sage's paradox, your gift today."
+    ],
+    beta_generic: [
+        "Sharp clarity energizes your thinking.",
+        "Your active awareness navigates the world with purpose.",
+        "Mental energy flows through channels of focused intention.",
+        "Quick thinking opens doors before they close. Your timing is impeccable.",
+        "Engaged perception transforms the mundane into the meaningful.",
+        "Your wakeful mind dances with reality, leading when it must, following when it should."
+    ],
+
+    // Gamma fortunes
+    gamma_active: [
         "Your heightened mind makes connections others cannot see.",
+        "Peak awareness transforms complexity into crystalline understanding.",
+        "Hyperconnected consciousness breaks through to revolutionary insight.",
+        "Synapses fire in symphonic unity. You perceive the web that connects all things.",
+        "Your accelerated awareness collapses time—past, present, future merge into now.",
+        "Neural lightning reveals the invisible architecture underlying visible reality."
+    ],
+    gamma_clear: [
+        "Expanded awareness meets serene clarity. Profound patterns reveal themselves.",
+        "Your heightened perception sees truth with calm precision.",
+        "Peak consciousness flows through open channels of understanding.",
+        "The universe whispers its secrets to minds like yours—vast yet focused.",
+        "Elevated sight meets tranquil heart. You see infinity without losing yourself.",
+        "Crystalline awareness refracts reality into its component truths."
+    ],
+    gamma_meditation: [
+        "Transcendent awareness emerges from the depths. You touch universal knowing.",
+        "The rarest state opens—pure consciousness witnessing itself.",
+        "In heightened stillness, all boundaries dissolve into infinite awareness.",
+        "You stand at the threshold where self dissolves into everything.",
+        "Peak experience meets deepest surrender. The cosmos recognizes itself through you.",
+        "In this moment, you are both the observer and the observed—unity realized."
+    ],
+    gamma_generic: [
         "Insight emerges from the synthesis of ideas. Trust your expanded awareness.",
-        "The patterns of understanding reveal themselves to your awakened consciousness."
+        "The patterns of understanding reveal themselves to your awakened consciousness.",
+        "Your heightened mind perceives connections across all dimensions.",
+        "Quantum leaps of understanding occur when perception reaches critical velocity.",
+        "Your consciousness operates at frequencies most never access. Use this gift wisely.",
+        "The veil between seen and unseen grows transparent to your elevated sight."
     ],
-    high_delta: [
-        "Your unconscious mind processes profound transformations in the depths.",
+
+    // Delta fortunes
+    delta_active: [
+        "Deep processing meets outward engagement. Hidden wisdom emerges into action.",
+        "Your unconscious mind works while you move—transformation in motion.",
+        "Profound change flows beneath active awareness. Trust the deep currents.",
+        "Primordial power rises through your actions. Ancient knowing guides modern doing.",
+        "The depths animate your surface. You move with unconscious grace.",
+        "Root wisdom flows into branch and leaf. Your actions carry primordial truth."
+    ],
+    delta_clear: [
+        "Your unconscious mind processes profound transformations with gentle clarity.",
+        "Deep wisdom surfaces into conscious awareness. Trust what rises from below.",
+        "The depths speak in whispers that your calm mind can finally hear.",
+        "What stirs in the abyss seeks the light. Welcome these visitors from below.",
+        "The slow work of the depths finally reaches the surface. Receive these gifts.",
+        "Ancient currents become conscious thoughts. The old ways speak in new voices."
+    ],
+    delta_meditation: [
+        "In trance-like depths, your deepest wisdom emerges from shadow into light.",
+        "The gateway to archetypal wisdom and healing opens before you.",
+        "Your consciousness touches the deepest waters where all things begin.",
+        "You descend to the source of all streams. Drink deeply from the first spring.",
+        "The cave at the bottom of your being holds treasures beyond price.",
+        "In the womb of consciousness, transformation gestates in perfect darkness."
+    ],
+    delta_generic: [
         "Deep currents of change flow beneath conscious awareness. Allow the process.",
-        "In trance-like states, your deepest wisdom emerges from shadow into light."
+        "Your unconscious mind weaves transformation in the hidden depths.",
+        "You journey to places beyond ordinary knowing.",
+        "The roots grow strong in darkness. Trust what you cannot yet see.",
+        "Invisible work proceeds in the depths. The harvest comes in its season.",
+        "What sleeps beneath will wake in time. The depths are never truly still."
     ],
-    high_theta: [
+
+    // Theta fortunes
+    theta_active: [
+        "Subconscious creativity meets focused action. Innovation flows freely.",
+        "Your intuitive mind engages with the world—dreams become reality.",
+        "Active imagination transforms vision into tangible form.",
+        "The dreaming mind sculpts waking reality. Your visions take physical form.",
+        "Inspiration drives your hands today. The muse and the maker are one.",
+        "Creative fire burns bright in the forge of action. You birth the impossible."
+    ],
+    theta_clear: [
         "Your subconscious mind weaves creativity and intuition into new forms.",
-        "Meditative states reveal the hidden connections between all things.",
-        "Insight flows from the deepest depths of your mind."
+        "Meditative clarity reveals the hidden connections between all things.",
+        "Insight flows from deep waters into the light of understanding.",
+        "The twilight mind sees what daylight obscures. Trust your sideways knowing.",
+        "Half-dreaming wisdom clarifies what sharp thinking missed. Let soft focus reveal.",
+        "The boundary between imagination and perception blurs—here truth emerges."
     ],
+    theta_meditation: [
+        "The realm of visions and symbolic truth opens before you.",
+        "Your subconscious unfolds like a lotus, revealing layer upon layer of meaning.",
+        "In this liminal space, your mind creates bridges between worlds.",
+        "You walk between waking and sleeping, knowing and unknowing, form and void.",
+        "The dream world and waking world recognize no border today. You are the bridge.",
+        "Symbolic language speaks louder than words. Your soul reads the signs."
+    ],
+    theta_generic: [
+        "Subconscious wisdom flows through your awareness.",
+        "Your intuitive mind perceives truths beyond logic.",
+        "Messages arrive from the realm of dreams.",
+        "The twilight realm whispers insights the daylight mind cannot grasp.",
+        "Your inner vision sees further than your outer eyes. Trust the images.",
+        "Creativity stirs in the half-light of consciousness. Feed it and watch it grow."
+    ],
+
+    // Balanced state
     balanced: [
         "All levels of consciousness work in harmony to create perfect understanding.",
         "Your integrated awareness brings balanced perspective to every situation.",
-        "Mind, body, and spirit align to manifest your highest potential."
-    ],
-    high_focus: [
-        "Concentrated attention becomes a laser that cuts through all obstacles.",
-        "Your directed awareness transforms challenges into stepping stones.",
-        "Single-pointed focus unlocks the door to extraordinary achievement."
-    ],
-    high_clear: [
-        "Relaxed awareness brings crystal clarity to all that was once clouded.",
-        "Creative understanding flows like light through a clear mind.",
-        "Calm perception reveals the elegant simplicity within complexity."
-    ],
-    high_meditation: [
-        "Transcendent stillness opens the gateway to infinite awareness.",
-        "In the depths of silence, universal wisdom speaks without words.",
-        "Your expanded consciousness touches the eternal source of all knowing."
-    ],
-    high_dream: [
-        "Unconscious processing reveals symbolic truths through inner imagery.",
-        "Trance-like states dissolve the boundaries between possible and real.",
-        "Deep mind weaves visions that carry messages from beyond ordinary awareness."
+        "Mind, body, and spirit align to manifest your highest potential.",
+        "The symphony of your being plays in perfect harmony. Each instrument serves the whole.",
+        "Like a master conductor, you orchestrate all aspects of awareness into sublime unity.",
+        "In this moment of equilibrium, you access the wisdom of all states at once."
     ]
 }
 
-function getDominantPattern(brainwaves, mlAnalysis) {
-    // Check ML analysis first (they take priority)
-    const { focus, clear, meditation, dream } = mlAnalysis;
-    const mlMax = Math.max(focus, clear, meditation, dream);
-    
-    // Meditation is extremely rare and special
-    if (meditation === mlMax && meditation > 0.6) {
-        return 'high_meditation';
+function getActivenessState(activenessArray) {
+    // Calculate what proportion of time was spent in each state
+    // Active: 1-2/3 (0.67-1.0)
+    // Clear: 2/3-1/3 (0.33-0.67)
+    // Meditation: 1/3-0 (0.0-0.33)
+
+    if (!activenessArray || activenessArray.length === 0) {
+        return null; // No activeness data
     }
-    
-    // Other ML patterns
-    if (focus === mlMax && focus > 0.7) return 'high_focus';
-    if (clear === mlMax && clear > 0.7) return 'high_clear';
-    if (dream === mlMax && dream > 0.7) return 'high_dream';
-    
-    // Fall back to brainwave patterns (excluding delta)
-    const { alpha, beta, gamma, theta } = brainwaves;
-    const waves = { alpha, beta, gamma, theta };
-    
-    let maxWave = 'balanced';
+
+    let activeCount = 0;
+    let clearCount = 0;
+    let meditationCount = 0;
+
+    activenessArray.forEach(value => {
+        if (value >= 2/3) {
+            activeCount++;
+        } else if (value >= 1/3) {
+            clearCount++;
+        } else {
+            meditationCount++;
+        }
+    });
+
+    const total = activenessArray.length;
+    const activeRatio = activeCount / total;
+    const clearRatio = clearCount / total;
+    const meditationRatio = meditationCount / total;
+
+    // Check if any state dominates (>= 2/3 of the time)
+    if (activeRatio >= 2/3) {
+        return 'active';
+    } else if (clearRatio >= 2/3) {
+        return 'clear';
+    } else if (meditationRatio >= 2/3) {
+        return 'meditation';
+    }
+
+    // No dominant state
+    return 'generic';
+}
+
+function getDominantPattern(brainwaves, mlAnalysis, activenessArray) {
+    // Get the activeness state
+    const activenessState = getActivenessState(activenessArray);
+
+    // Find dominant brainwave (excluding delta from dominance check, but include in normalization)
+    let { alpha, beta, gamma, theta, delta } = brainwaves;
+
+    // Apply frequency-based weighting
+    alpha *= Math.pow((8 + 12) / 2, 0.8);
+    beta *= Math.pow((12 + 30) / 2, 0.8);
+    gamma *= Math.pow((30 + 100) / 2, 0.8);
+    delta *= Math.pow((0.5 + 4) / 2, 0.8);
+    theta *= Math.pow((4 + 8) / 2, 0.8);
+
+    const total = alpha + beta + gamma + delta + theta;
+    alpha /= total;
+    beta  /= total;
+    gamma /= total;
+    delta /= total;
+    theta /= total;
+
+    // Include delta in consideration for dominant wave
+    const waves = { alpha, beta, gamma, theta, delta };
+
+    let maxWave = null;
     let maxValue = 0;
-    
+
     for (const [wave, value] of Object.entries(waves)) {
         if (value > maxValue && value > 0.25) {
             maxValue = value;
-            maxWave = `high_${wave}`;
+            maxWave = wave;
         }
     }
-    
-    return maxWave;
+
+    // If no dominant wave, return balanced
+    if (!maxWave) {
+        return 'balanced';
+    }
+
+    // If no activeness data, use generic for that brainwave
+    if (!activenessState) {
+        return `${maxWave}_generic`;
+    }
+
+    // Combine brainwave and activeness state
+    return `${maxWave}_${activenessState}`;
 }
 
 function getRandomFortune(category, brainwaves, mlAnalysis) {
@@ -1039,7 +1226,7 @@ function updateBrainwaveDisplay(brainwaves, mlAnalysis, timestamp, numDataPoints
     updateAllWaveVisualizations(brainwaves);
 
     // Update fortune based on the data
-    const dominantPattern = getDominantPattern(brainwaves, mlAnalysis);
+    const dominantPattern = getDominantPattern(brainwaves, mlAnalysis, activenessArray);
     const fortune = getRandomFortune(dominantPattern, brainwaves, mlAnalysis);
     document.getElementById('fortuneMessage').textContent = fortune;
 
