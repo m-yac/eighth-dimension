@@ -14,52 +14,47 @@
             <div class="fortune-section">
                 <div class="fortune-message-container">
                     <div class="fortune-message" id="fortuneMessage">Loading...</div>
+                    <p class="fortune-subtitle">Personalized fortune message generated from the attributes of your unique brainwave data</p>
                 </div>
                 <a href="?id=NDd4MTIxMQ" class="example-link">See an example with real brainwaves!</a>
             </div>
 
-            <div class="graph-section">
-                <h4>Your Mind During the Experience</h4>
-                <div style="position: relative; height: 151px; width: 100%;">
-                    <canvas id="activenessChart"></canvas>
-                </div>
-            </div>
-
             <div class="brainwave-section">
-                <h4>Your Most Prominent Brainwave Frequencies</h4>
+                <h4>Your Brainwave Frequencies</h4>
+                <p class="graph-subtitle">Prominence of each type of brainwave frequency in your data relative to an average baseline</p>
                 <div class="brainwave-grid">
                     <div class="wave-stat red-bg">
-                        <svg class="wave-viz" id="deltaWave" width="80" height="20" viewBox="0 0 80 20">
+                        <svg class="wave-viz" id="deltaWave" width="80" height="60" viewBox="0 0 80 60">
                             <path class="wave-path" d="" stroke="oklch(var(--text-lightness) var(--text-chroma) 30)" stroke-width="1.5" fill="none"/>
                         </svg>
                         <div class="wave-value" id="deltaBox">-</div>
                         <div class="wave-info">
                             <div class="wave-name">Delta</div>
-                            <div class="wave-description"><b>Unconscious mind:</b> eye/muscle movement, sleep (0.5-4 Hz)</div>
+                            <div class="wave-description"><b>Unconscious mind:</b> dreamlike states, mental rejuvenation (0.5-4 Hz)</div>
                         </div>
                     </div>
                     <div class="wave-stat orange-bg">
-                        <svg class="wave-viz" id="thetaWave" width="80" height="20" viewBox="0 0 80 20">
+                        <svg class="wave-viz" id="thetaWave" width="80" height="60" viewBox="0 0 80 60">
                             <path class="wave-path" d="" stroke="oklch(var(--text-lightness) var(--text-chroma) 60)" stroke-width="1.5" fill="none"/>
                         </svg>
                         <div class="wave-value" id="thetaBox">-</div>
                         <div class="wave-info">
                             <div class="wave-name">Theta</div>
-                            <div class="wave-description"><b>Subconscious mind:</b> intuition, thought, creativity (4-8 Hz)</div>
+                            <div class="wave-description"><b>Subconscious mind:</b> intuition, creativity, deep meditation (4-8 Hz)</div>
                         </div>
                     </div>
                     <div class="wave-stat yellow-bg">
-                        <svg class="wave-viz" id="alphaWave" width="80" height="20" viewBox="0 0 80 20">
+                        <svg class="wave-viz" id="alphaWave" width="80" height="60" viewBox="0 0 80 60">
                             <path class="wave-path" d="" stroke="oklch(var(--text-lightness) var(--text-chroma) 100)" stroke-width="1.5" fill="none"/>
                         </svg>
                         <div class="wave-value" id="alphaBox">-</div>
                         <div class="wave-info">
                             <div class="wave-name">Alpha</div>
-                            <div class="wave-description"><b>Relaxed mind:</b> calmness, clarity, meditation (8-12 Hz)</div>
+                            <div class="wave-description"><b>Calm mind:</b> gentle relaxation, clarity, meditation (8-12 Hz)</div>
                         </div>
                     </div>
                     <div class="wave-stat cyan-bg">
-                        <svg class="wave-viz" id="betaWave" width="80" height="20" viewBox="0 0 80 20">
+                        <svg class="wave-viz" id="betaWave" width="80" height="60" viewBox="0 0 80 60">
                             <path class="wave-path" d="" stroke="oklch(var(--text-lightness) var(--text-chroma) 200)" stroke-width="1.5" fill="none"/>
                         </svg>
                         <div class="wave-value" id="betaBox">-</div>
@@ -69,7 +64,7 @@
                         </div>
                     </div>
                     <div class="wave-stat blue-bg">
-                        <svg class="wave-viz" id="gammaWave" width="80" height="20" viewBox="0 0 80 20">
+                        <svg class="wave-viz" id="gammaWave" width="80" height="60" viewBox="0 0 80 60">
                             <path class="wave-path" d="" stroke="oklch(var(--text-lightness) var(--text-chroma) 250)" stroke-width="1.5" fill="none"/>
                         </svg>
                         <div class="wave-value" id="gammaBox">-</div>
@@ -81,10 +76,28 @@
                 </div>
             </div>
 
-            <div class="graph-section">
-                <h4>Your Brainwave Frequencies During the Experience</h4>
-                <div style="position: relative; height: 151px; width: 100%;">
+            <div class="graph-section" id="brainwaveGraphSection">
+                <h4>Your Brainwave Frequencies Over Time</h4>
+                <p class="graph-subtitle warning-subtitle">Note: a long straight line indicates poor connection, when only averages are sent instead of second-to-second data.</p>
+                <div style="position: relative; height: 160px; width: 100%;">
                     <canvas id="brainwaveChart"></canvas>
+                </div>
+            </div>
+
+            <div class="graph-section">
+                <h4>Your Mind During the Experience</h4>
+                <p class="graph-subtitle">Based on live analysis of your brainwaves</p>
+                <p class="graph-subtitle warning-subtitle">Note: a long straight line indicates poor connection, when only averages are sent instead of second-to-second data.</p>
+                <div style="position: relative; height: 120px; width: 100%;">
+                    <canvas id="activenessChart"></canvas>
+                </div>
+                <div class="activeness-gradient-legend">
+                    <div class="gradient-bar"></div>
+                    <div class="gradient-labels">
+                        <span class="label-left">Active</span>
+                        <span class="label-center">Calm</span>
+                        <span class="label-right">Deepest<br>Meditation</span>
+                    </div>
                 </div>
             </div>
 

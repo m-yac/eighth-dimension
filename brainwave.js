@@ -1,7 +1,9 @@
 // Brainwave data fetching and display functionality with fortune integration
 
+const weighting_power = 0.9;
+
 // Multi-sine wave brainwave generation with frequency weighting
-function generateFrequencyWeightedWave(brainwaveType, amplitude, width = 80, height = 20) {
+function generateFrequencyWeightedWave(brainwaveType, amplitude, width = 80, height = 60) {
     const points = [];
     const centerY = height / 2;
     const maxAmplitude = height / 3;
@@ -44,24 +46,32 @@ function generateFrequencyWeightedWave(brainwaveType, amplitude, width = 80, hei
     }
     console.log(waveComponents)
 
-    // Generate the wave by summing all components
+    // Generate raw wave data first
+    const rawPoints = [];
     for (let x = 0; x < width; x++) {
         const t = (x / width) * Math.PI * 8; // Time parameter for quarter second
         let y = 0;
-        
+
         // Sum all frequency components
         waveComponents.forEach(component => {
             y += Math.sin(t * component.freq + component.phase) * component.amplitude;
         });
-        
-        // Apply scaling and centering
-        y = centerY - (y * maxAmplitude);
-        
+
+        rawPoints.push(y);
+    }
+
+    // Calculate mean to remove DC bias and ensure centering
+    const mean = rawPoints.reduce((sum, val) => sum + val, 0) / rawPoints.length;
+
+    // Apply scaling, centering, and DC bias removal
+    for (let x = 0; x < width; x++) {
+        let y = centerY - ((rawPoints[x] - mean) * maxAmplitude);
+
         // Clamp to bounds
         y = Math.max(1, Math.min(height - 1, y));
         points.push(`${x},${y}`);
     }
-    
+
     return `M${points.join(' L')}`;
 }
 
@@ -203,41 +213,37 @@ function formatTimestamp(timestamp) {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        minute: '2-digit'
     });
 }
 
 function formatTimestampRange(startTimestamp, numDataPoints, headband) {
     // Each data point is 2 seconds apart
     const intervalMs = 2000; // 2 seconds in milliseconds
-    const endTimestamp = startTimestamp + (numDataPoints - 1) * intervalMs;
+    const durationMs = (numDataPoints - 1) * intervalMs;
 
     const startDate = new Date(startTimestamp);
-    const endDate = new Date(endTimestamp);
 
     const options = {
         hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        minute: '2-digit'
     };
 
     const headbandText = headband !== undefined ? `Headband ${headband} ` : '';
 
-    // If same day, just show time range
-    if (startDate.toDateString() === endDate.toDateString()) {
-        const dateStr = startDate.toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-        const startTime = startDate.toLocaleString('en-US', options);
-        const endTime = endDate.toLocaleString('en-US', options);
-        return `from ${headbandText}on ${dateStr} from ${startTime} to ${endTime}`;
-    } else {
-        // Different days, show full timestamps
-        return `from ${headbandText}from ` + formatTimestamp(startTimestamp) + ' to ' + formatTimestamp(endTimestamp);
-    }
+    // Calculate duration in minutes
+    const durationMinutes = Math.floor(durationMs / 60000);
+    const durationSeconds = Math.floor((durationMs % 60000) / 1000);
+    const durationText = durationSeconds > 0 ? `${durationMinutes}m ${durationSeconds}s` : `${durationMinutes}m`;
+
+    const dateStr = startDate.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+    const startTime = startDate.toLocaleString('en-US', options);
+
+    return `from ${headbandText}on ${dateStr} at ${startTime} (${durationText})`;
 }
 
 function displayRandomFortune(timestamp) {
@@ -246,6 +252,12 @@ function displayRandomFortune(timestamp) {
 
     // Display just the fortune message
     document.getElementById('fortuneMessage').textContent = fortune;
+
+    // Update subtitle to say "randomly" instead of "from brainwave data"
+    const fortuneSubtitle = document.querySelector('.fortune-subtitle');
+    if (fortuneSubtitle) {
+        fortuneSubtitle.textContent = 'Personalized fortune message generated randomly';
+    }
 
     // Show the example link
     const exampleLink = document.querySelector('.example-link');
@@ -488,45 +500,53 @@ function createActivenessChart(activenessArray) {
             },
             plugins: {
                 legend: { display: false },
-                tooltip: { enabled: false }
+                tooltip: {
+                    enabled: false,
+                    external: function(context) {
+                        // Get or create tooltip element
+                        const tooltipEl = getOrCreateTooltip('activeness-tooltip');
+                        const tooltipModel = context.tooltip;
+
+                        // Hide if no tooltip
+                        if (tooltipModel.opacity === 0) {
+                            tooltipEl.style.opacity = 0;
+                            return;
+                        }
+
+                        // Create tooltip content with activeness value
+                        createSimpleTooltip(tooltipEl, tooltipModel, (dataPoint) => {
+                            const value = dataPoint.parsed.y;
+                            let label = 'Activeness';
+                            return {
+                                label: label,
+                                value: (value * 100).toFixed(0) + '%',
+                                color: getGradientColor(value)
+                            };
+                        });
+
+                        // Position tooltip
+                        positionTooltip(tooltipEl, context);
+                    }
+                }
             },
             scales: {
                 x: {
                     grid: {
                         color: 'rgba(255, 255, 255, 0.05)',
-                        drawBorder: false
+                        drawBorder: false,
+                        drawTicks: false
                     },
                     ticks: {
-                        color: 'rgba(255, 255, 255, 0.6)',
                         maxTicksLimit: 10,
-                        font: {
-                            size: 11,
-                            family: 'cmu, Inter, sans-serif'
-                        }
+                        display: false
                     }
                 },
                 y: {
                     beginAtZero: true,
                     max: 1,
-                    display: true,
-                    position: 'left',
+                    display: false,
                     grid: {
                         display: false
-                    },
-                    ticks: {
-                        color: 'rgba(255, 255, 255, 0.6)',
-                        font: {
-                            size: 14,
-                            family: 'cmu, Inter, sans-serif'
-                        },
-                        callback: function(value) {
-                            if (value === 1.0) return ['Active'];
-                            if (value === 0.5) return ['Calm'];
-                            if (value === 0.0) return ['Deepest', 'Meditation'];
-                            return '';
-                        },
-                        stepSize: 0.5,
-                        padding: 10
                     }
                 }
             },
@@ -869,20 +889,15 @@ function createBrainwaveChart(dataArrays) {
                 x: {
                     grid: {
                         color: 'rgba(255, 255, 255, 0.05)',
-                        drawBorder: false
+                        drawBorder: false,
+                        drawTicks: false
                     },
                     ticks: {
-                        color: 'rgba(255, 255, 255, 0.6)',
                         maxTicksLimit: 10,
-                        font: {
-                            size: 11,
-                            family: 'cmu, Inter, sans-serif'
-                        }
+                        display: false
                     }
                 },
                 y: {
-                    // beginAtZero: true,
-                    // max: 1,
                     display: false,
                     grid: {
                         display: false
@@ -891,6 +906,58 @@ function createBrainwaveChart(dataArrays) {
             }
         }
     });
+}
+
+function removeRepeatedTail(dataArrays) {
+    // Remove synchronized repeated values from the end of all data arrays
+    // Only remove a value from all arrays if ALL arrays have the same value as their previous entry
+
+    if (!dataArrays || Object.keys(dataArrays).length === 0) return dataArrays;
+
+    // Get all array keys and ensure they're all arrays
+    const keys = Object.keys(dataArrays);
+    if (keys.length === 0) return dataArrays;
+
+    // Check that all values are arrays and get the minimum length
+    let minLength = Infinity;
+    for (const key of keys) {
+        if (!Array.isArray(dataArrays[key])) return dataArrays;
+        minLength = Math.min(minLength, dataArrays[key].length);
+    }
+
+    if (minLength <= 1) return dataArrays; // Need at least 2 values to compare
+
+    // Start from the end and work backwards
+    let removeCount = 0;
+    for (let i = minLength - 1; i > 0; i--) {
+        // Check if ALL arrays have the same value as their previous entry at this position
+        let allRepeated = true;
+        for (const key of keys) {
+            if (dataArrays[key][i] !== dataArrays[key][i - 1]) {
+                allRepeated = false;
+                break;
+            }
+        }
+
+        if (allRepeated) {
+            removeCount++;
+        } else {
+            // Stop as soon as we find a position where not all values repeat
+            break;
+        }
+    }
+
+    // Remove the tail from all arrays
+    if (removeCount > 0) {
+        const result = {};
+        for (const key of keys) {
+            result[key] = dataArrays[key].slice(0, -removeCount);
+        }
+        console.log(`Removed ${removeCount} synchronized repeated values from tail`);
+        return result;
+    }
+
+    return dataArrays;
 }
 
 function calculateAverage(arr) {
@@ -1131,11 +1198,11 @@ function getDominantPattern(brainwaves, mlAnalysis, activenessArray) {
     let { alpha, beta, gamma, theta, delta } = brainwaves;
 
     // Apply frequency-based weighting
-    alpha *= Math.pow((8 + 12) / 2, 0.8);
-    beta *= Math.pow((12 + 30) / 2, 0.8);
-    gamma *= Math.pow((30 + 100) / 2, 0.8);
-    delta *= Math.pow((0.5 + 4) / 2, 0.8);
-    theta *= Math.pow((4 + 8) / 2, 0.8);
+    alpha *= Math.pow((8 + 12) / 2, weighting_power);
+    beta *= Math.pow((12 + 30) / 2, weighting_power);
+    gamma *= Math.pow((30 + 100) / 2, weighting_power);
+    delta *= Math.pow((0.5 + 4) / 2, weighting_power);
+    theta *= Math.pow((4 + 8) / 2, weighting_power);
 
     const total = alpha + beta + gamma + delta + theta;
     alpha /= total;
@@ -1192,6 +1259,70 @@ function getRandomFortune(category, brainwaves, mlAnalysis) {
     return categoryFortunes[index];
 }
 
+function detectLongStraightSections(dataArrays) {
+    // Check if any brainwave has identical values for more than 30 consecutive points (60 seconds)
+    const threshold = 30; // 30 points = 60 seconds (each point is 2 seconds)
+
+    for (const wave in dataArrays) {
+        const data = dataArrays[wave];
+        if (!Array.isArray(data) || data.length < threshold) continue;
+
+        let consecutiveCount = 1;
+        for (let i = 1; i < data.length; i++) {
+            if (data[i] === data[i - 1]) {
+                consecutiveCount++;
+                if (consecutiveCount >= threshold) {
+                    return true; // Found a long straight section
+                }
+            } else {
+                consecutiveCount = 1;
+            }
+        }
+    }
+
+    return false;
+}
+
+function highlightPeakFrequency(dominantPattern) {
+    // Parse the pattern (e.g., "beta_active", "alpha_generic", "balanced")
+    const parts = dominantPattern.split('_');
+    const brainwaveType = parts[0];
+
+    // Remove peak-frequency class and label from all wave-stats
+    document.querySelectorAll('.wave-stat').forEach(stat => {
+        stat.classList.remove('peak-frequency');
+        const existingLabel = stat.querySelector('.peak-label');
+        if (existingLabel) {
+            existingLabel.remove();
+        }
+    });
+
+    // Add peak-frequency class to the dominant brainwave (if not balanced)
+    if (brainwaveType !== 'balanced') {
+        const waveMap = {
+            delta: 'deltaWave',
+            theta: 'thetaWave',
+            alpha: 'alphaWave',
+            beta: 'betaWave',
+            gamma: 'gammaWave'
+        };
+
+        const waveId = waveMap[brainwaveType];
+        if (waveId) {
+            const waveStat = document.getElementById(waveId)?.closest('.wave-stat');
+            if (waveStat) {
+                waveStat.classList.add('peak-frequency');
+
+                // Add the label with bold "Peak frequency"
+                const label = document.createElement('div');
+                label.className = 'peak-label';
+                label.innerHTML = '<strong>Peak frequency</strong>: this type of brainwave frequency was the most prominent in your data';
+                waveStat.appendChild(label);
+            }
+        }
+    }
+}
+
 function updateBrainwaveDisplay(brainwaves, mlAnalysis, timestamp, numDataPoints, headband, rawDataArrays, activenessArray) {
     // Create the activeness chart if we have activeness data
     if (activenessArray && activenessArray.length > 0) {
@@ -1207,20 +1338,55 @@ function updateBrainwaveDisplay(brainwaves, mlAnalysis, timestamp, numDataPoints
     const graphSections = document.querySelectorAll('.graph-section');
     graphSections.forEach((section, index) => {
         if (index === 0) {
-            // First graph section is activeness
-            section.style.display = (activenessArray && activenessArray.length > 0) ? 'block' : 'none';
-        } else if (index === 1) {
-            // Second graph section is brainwaves
+            // First graph section is brainwaves over time
             section.style.display = rawDataArrays ? 'block' : 'none';
+
+            // Show/hide poor connection warning based on straight sections detection
+            if (rawDataArrays) {
+                const hasLongStraightSections = detectLongStraightSections(rawDataArrays);
+                const warningSubtitle = section.querySelector('.warning-subtitle');
+                if (warningSubtitle) {
+                    warningSubtitle.style.display = hasLongStraightSections ? 'block' : 'none';
+                }
+            }
+        } else if (index === 1) {
+            // Second graph section is activeness
+            section.style.display = (activenessArray && activenessArray.length > 0) ? 'block' : 'none';
+
+            // Show/hide poor connection warning based on straight sections detection in activeness data
+            if (activenessArray && activenessArray.length > 0) {
+                const hasLongStraightSections = detectLongStraightSections({ activeness: activenessArray });
+                const warningSubtitle = section.querySelector('.warning-subtitle');
+                if (warningSubtitle) {
+                    warningSubtitle.style.display = hasLongStraightSections ? 'block' : 'none';
+                }
+            }
         }
     });
 
-    // Update brainwave values in number boxes (normalized percentages from averages)
-    document.getElementById('deltaBox').textContent = (brainwaves.delta * 100).toFixed(0) + '%';
-    document.getElementById('thetaBox').textContent = (brainwaves.theta * 100).toFixed(0) + '%';
-    document.getElementById('alphaBox').textContent = (brainwaves.alpha * 100).toFixed(0) + '%';
-    document.getElementById('betaBox').textContent = (brainwaves.beta * 100).toFixed(0) + '%';
-    document.getElementById('gammaBox').textContent = (brainwaves.gamma * 100).toFixed(0) + '%';
+    // Apply frequency-based weighting (same as in getDominantPattern)
+    let adjustedBrainwaves = {
+        alpha: brainwaves.alpha * Math.pow((8 + 12) / 2, weighting_power),
+        beta: brainwaves.beta * Math.pow((12 + 30) / 2, weighting_power),
+        gamma: brainwaves.gamma * Math.pow((30 + 100) / 2, weighting_power),
+        delta: brainwaves.delta * Math.pow((0.5 + 4) / 2, weighting_power),
+        theta: brainwaves.theta * Math.pow((4 + 8) / 2, weighting_power)
+    };
+
+    // Re-normalize to percentages
+    const total = adjustedBrainwaves.alpha + adjustedBrainwaves.beta + adjustedBrainwaves.gamma + adjustedBrainwaves.delta + adjustedBrainwaves.theta;
+    adjustedBrainwaves.alpha /= total;
+    adjustedBrainwaves.beta /= total;
+    adjustedBrainwaves.gamma /= total;
+    adjustedBrainwaves.delta /= total;
+    adjustedBrainwaves.theta /= total;
+
+    // Update brainwave values in number boxes (frequency-weighted normalized percentages)
+    document.getElementById('deltaBox').textContent = (adjustedBrainwaves.delta * 100).toFixed(0) + '%';
+    document.getElementById('thetaBox').textContent = (adjustedBrainwaves.theta * 100).toFixed(0) + '%';
+    document.getElementById('alphaBox').textContent = (adjustedBrainwaves.alpha * 100).toFixed(0) + '%';
+    document.getElementById('betaBox').textContent = (adjustedBrainwaves.beta * 100).toFixed(0) + '%';
+    document.getElementById('gammaBox').textContent = (adjustedBrainwaves.gamma * 100).toFixed(0) + '%';
 
     // Update wave visualizations
     updateAllWaveVisualizations(brainwaves);
@@ -1229,6 +1395,9 @@ function updateBrainwaveDisplay(brainwaves, mlAnalysis, timestamp, numDataPoints
     const dominantPattern = getDominantPattern(brainwaves, mlAnalysis, activenessArray);
     const fortune = getRandomFortune(dominantPattern, brainwaves, mlAnalysis);
     document.getElementById('fortuneMessage').textContent = fortune;
+
+    // Highlight the peak frequency
+    highlightPeakFrequency(dominantPattern);
 
     // Show data sections (brainwave section only, ML is commented out in HTML)
     const brainwaveSection = document.querySelector('.brainwave-section');
@@ -1313,13 +1482,23 @@ async function fetchBrainwaveData() {
         updateUrlParams(urlParams.headband, actualRun);
 
         // Store raw data arrays for the chart
-        const rawDataArrays = {
+        let rawDataArrays = {
             alpha: Array.isArray(data.alpha) ? data.alpha : [data.alpha || 0],
             beta: Array.isArray(data.beta) ? data.beta : [data.beta || 0],
             gamma: Array.isArray(data.gamma) ? data.gamma : [data.gamma || 0],
             delta: Array.isArray(data.delta) ? data.delta : [data.delta || 0],
             theta: Array.isArray(data.theta) ? data.theta : [data.theta || 0]
         };
+
+        // Extract activeness data if available (before tail removal)
+        let activenessArray = Array.isArray(data.activeness) ? data.activeness : (data.activeness !== undefined ? [data.activeness] : []);
+
+        // Remove synchronized repeated values from the tail
+        rawDataArrays = removeRepeatedTail(rawDataArrays);
+        if (activenessArray.length > 0) {
+            const cleanedActiveness = removeRepeatedTail({ activeness: activenessArray });
+            activenessArray = cleanedActiveness.activeness;
+        }
 
         // Calculate averages of all values for display
         const rawBrainwaves = {
@@ -1331,19 +1510,24 @@ async function fetchBrainwaveData() {
         };
         const brainwaves = normalizeBrainwaves(rawBrainwaves);
 
-        // Extract ML analysis - calculate averages
+        // Extract ML analysis - calculate averages (also clean these arrays)
+        let mlDataArrays = {
+            focus: Array.isArray(data.focus) ? data.focus : [data.focus || 0],
+            clear: Array.isArray(data.clear) ? data.clear : [data.clear || 0],
+            meditation: Array.isArray(data.meditation) ? data.meditation : [data.meditation || 0],
+            dream: Array.isArray(data.dream) ? data.dream : [data.dream || 0]
+        };
+        mlDataArrays = removeRepeatedTail(mlDataArrays);
+
         const mlAnalysis = {
-            focus: calculateAverage(Array.isArray(data.focus) ? data.focus : [data.focus || 0]),
-            clear: calculateAverage(Array.isArray(data.clear) ? data.clear : [data.clear || 0]),
-            meditation: calculateAverage(Array.isArray(data.meditation) ? data.meditation : [data.meditation || 0]),
-            dream: calculateAverage(Array.isArray(data.dream) ? data.dream : [data.dream || 0])
+            focus: calculateAverage(mlDataArrays.focus),
+            clear: calculateAverage(mlDataArrays.clear),
+            meditation: calculateAverage(mlDataArrays.meditation),
+            dream: calculateAverage(mlDataArrays.dream)
         };
 
         // Extract timestamp if available and convert to milliseconds
         const timestamp = data.start_timestamp ? new Date(data.start_timestamp).getTime() : null;
-
-        // Extract activeness data if available
-        const activenessArray = Array.isArray(data.activeness) ? data.activeness : (data.activeness !== undefined ? [data.activeness] : []);
 
         // Determine number of data points from one of the arrays (they should all have the same length)
         const numDataPoints = rawDataArrays.alpha.length;
@@ -1375,6 +1559,21 @@ async function fetchBrainwaveData() {
         dataPanel.style.transform = 'scale(1)';
     }
 }
+
+// Add click handler to hide tooltips when clicking outside charts
+document.addEventListener('click', (event) => {
+    const isChartClick = event.target.closest('canvas');
+    if (!isChartClick) {
+        // Hide all tooltips
+        const tooltips = ['chartjs-tooltip', 'activeness-tooltip'];
+        tooltips.forEach(id => {
+            const tooltip = document.getElementById(id);
+            if (tooltip) {
+                tooltip.style.opacity = 0;
+            }
+        });
+    }
+});
 
 // Initialize when page loads
 window.addEventListener('load', fetchBrainwaveData);
