@@ -1,6 +1,6 @@
 // Brainwave data fetching and display functionality with fortune integration
 
-const weighting_power = 0.9;
+const weighting_power = 0.6;
 
 // Multi-sine wave brainwave generation with frequency weighting
 function generateFrequencyWeightedWave(brainwaveType, amplitude, width = 80, height = 60) {
@@ -1200,8 +1200,8 @@ function getDominantPattern(brainwaves, mlAnalysis, activenessArray) {
     // Apply frequency-based weighting
     alpha *= Math.pow((8 + 12) / 2, weighting_power);
     beta *= Math.pow((12 + 30) / 2, weighting_power);
-    gamma *= Math.pow((30 + 100) / 2, weighting_power);
-    delta *= Math.pow((0.5 + 4) / 2, weighting_power);
+    gamma *= Math.pow((30 + 48) / 2, weighting_power);
+    delta *= Math.pow(1 / 2, weighting_power);
     theta *= Math.pow((4 + 8) / 2, weighting_power);
 
     const total = alpha + beta + gamma + delta + theta;
@@ -1368,8 +1368,8 @@ function updateBrainwaveDisplay(brainwaves, mlAnalysis, timestamp, numDataPoints
     let adjustedBrainwaves = {
         alpha: brainwaves.alpha * Math.pow((8 + 12) / 2, weighting_power),
         beta: brainwaves.beta * Math.pow((12 + 30) / 2, weighting_power),
-        gamma: brainwaves.gamma * Math.pow((30 + 100) / 2, weighting_power),
-        delta: brainwaves.delta * Math.pow((0.5 + 4) / 2, weighting_power),
+        gamma: brainwaves.gamma * Math.pow((30 + 48) / 2, weighting_power),
+        delta: brainwaves.delta * Math.pow(1, weighting_power),
         theta: brainwaves.theta * Math.pow((4 + 8) / 2, weighting_power)
     };
 
@@ -1493,11 +1493,15 @@ async function fetchBrainwaveData() {
         // Extract activeness data if available (before tail removal)
         let activenessArray = Array.isArray(data.activeness) ? data.activeness : (data.activeness !== undefined ? [data.activeness] : []);
 
-        // Remove synchronized repeated values from the tail
+        // Remove synchronized repeated values from the tail (based on brainwave data only)
+        const originalLength = rawDataArrays.alpha.length;
         rawDataArrays = removeRepeatedTail(rawDataArrays);
-        if (activenessArray.length > 0) {
-            const cleanedActiveness = removeRepeatedTail({ activeness: activenessArray });
-            activenessArray = cleanedActiveness.activeness;
+        const newLength = rawDataArrays.alpha.length;
+        const removeCount = originalLength - newLength;
+
+        // Remove the same number of entries from activeness array
+        if (activenessArray.length > 0 && removeCount > 0) {
+            activenessArray = activenessArray.slice(0, -removeCount);
         }
 
         // Calculate averages of all values for display
