@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eighth Dimension - Next Session</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .countdown-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .countdown-panel {
+            background: oklch(from var(--bg-base) calc(l + 0.05) c h / 0.85);
+            border-radius: 1.5rem;
+            padding: 3rem 4rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 666.667px;
+            width: 100%;
+        }
+
+        .welcome-title {
+            font-size: 2.2rem;
+            margin-bottom: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .session-label {
+            font-size: 1.2rem;
+            margin-bottom: 1.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .session-label .session-time {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .countdown-display {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .countdown-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+
+        .countdown-value {
+            font-size: 3.5rem;
+            font-weight: bold;
+            line-height: 1;
+            color: oklch(var(--text-lightness) var(--text-chroma) var(--text-hue));
+            font-variant-numeric: tabular-nums;
+        }
+
+        .countdown-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: oklch(from var(--bg-base) calc(l + 0.4) 0.05 var(--text-hue));
+            margin-top: 0.5rem;
+        }
+
+        .session-datetime {
+            font-size: 1.2rem;
+            color: oklch(var(--text-lightness) var(--text-chroma) var(--text-hue));
+            margin-bottom: 1rem;
+        }
+
+        .no-sessions {
+            font-size: 1.3rem;
+            color: oklch(from var(--bg-base) calc(l + 0.5) 0.05 var(--text-hue));
+        }
+
+        .info-text {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: oklch(from var(--bg-base) calc(l + 0.5) 0.05 var(--text-hue));
+        }
+
+        @media (max-width: 500px) {
+            .countdown-panel {
+                padding: 2rem 1.5rem;
+            }
+
+            .countdown-value {
+                font-size: 2.5rem;
+            }
+
+            .countdown-unit {
+                min-width: 60px;
+            }
+
+            .countdown-display {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown-container">
+        <div class="countdown-panel">
+            <h1 class="welcome-title">Welcome to the Eighth Dimension</h1>
+            <div class="session-label">Next Session: <span class="session-time" id="sessionType">Loading...</span></div>
+
+            <div class="countdown-display" id="countdownDisplay">
+                <div class="countdown-unit" id="daysUnit">
+                    <span class="countdown-value" id="days">--</span>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <div class="countdown-unit" id="hoursUnit">
+                    <span class="countdown-value" id="hours">--</span>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-value" id="minutes">--</span>
+                    <span class="countdown-label">Minutes</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-value" id="seconds">--</span>
+                    <span class="countdown-label">Seconds</span>
+                </div>
+            </div>
+
+            <p class="info-text" id="infoText">Please wait here until your session begins.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script src="./water-caustics/caustics.js"></script>
+    <script>
+        // Initialize caustics when DOM is ready
+        window.addEventListener('load', () => {
+            init('./water-caustics/').catch(error => {
+                console.error('Failed to initialize caustics:', error);
+            });
+        });
+
+        // Session schedule - all times in local timezone
+        const sessions = [
+            { date: '2026-01-21', time: '16:45', label: '7:30 pm - 8:00 pm', extended: false },
+            { date: '2026-01-28', time: '19:30', label: '7:30 pm - 8:00 pm', extended: false },
+            { date: '2026-01-28', time: '20:00', label: '8:00 pm - 9:00 pm', extended: true },
+            { date: '2026-01-29', time: '19:30', label: '7:30 pm - 8:00 pm', extended: false },
+            { date: '2026-01-29', time: '20:00', label: '8:00 pm - 9:00 pm', extended: true },
+            { date: '2026-01-30', time: '19:30', label: '7:30 pm - 8:00 pm', extended: false },
+            { date: '2026-01-30', time: '20:00', label: '8:00 pm - 9:00 pm', extended: true },
+            { date: '2026-01-31', time: '10:30', label: '10:30 am - 11:30 am', extended: true },
+            { date: '2026-01-31', time: '11:30', label: '11:30 am - 12:30 pm', extended: true },
+            { date: '2026-01-31', time: '12:30', label: '12:30 pm - 1:30 pm', extended: true },
+            { date: '2026-01-31', time: '14:00', label: '2:00 pm - 3:00 pm', extended: true },
+            { date: '2026-01-31', time: '15:00', label: '3:00 pm - 3:30 pm', extended: false },
+            { date: '2026-01-31', time: '15:30', label: '3:30 pm - 4:00 pm', extended: false },
+            { date: '2026-01-31', time: '16:00', label: '4:00 pm - 4:30 pm', extended: false },
+            { date: '2026-01-31', time: '16:30', label: '4:30 pm - 5:00 pm', extended: false },
+            { date: '2026-01-31', time: '17:00', label: '5:00 pm - 5:30 pm', extended: false },
+            { date: '2026-01-31', time: '17:30', label: '5:30 pm - 6:30 pm', extended: true },
+            { date: '2026-01-31', time: '18:30', label: '6:30 pm - 7:30 pm', extended: true },
+            { date: '2026-01-31', time: '19:30', label: '7:30 pm - 8:30 pm', extended: true },
+            { date: '2026-01-31', time: '20:30', label: '8:30 pm - 9:30 pm', extended: true },
+            { date: '2026-02-01', time: '10:30', label: '10:30 am - 11:30 am', extended: true },
+            { date: '2026-02-01', time: '11:30', label: '11:30 am - 12:30 pm', extended: true },
+            { date: '2026-02-01', time: '12:30', label: '12:30 pm - 1:30 pm', extended: true },
+            { date: '2026-02-01', time: '14:00', label: '2:00 pm - 3:00 pm', extended: true },
+            { date: '2026-02-01', time: '15:00', label: '3:00 pm - 3:30 pm', extended: false },
+            { date: '2026-02-01', time: '15:30', label: '3:30 pm - 4:00 pm', extended: false },
+        ];
+
+        function parseSessionDate(session) {
+            const [year, month, day] = session.date.split('-').map(Number);
+            const [hour, minute] = session.time.split(':').map(Number);
+            return new Date(year, month - 1, day, hour, minute, 0);
+        }
+
+        function getNextSession() {
+            const now = new Date();
+            for (const session of sessions) {
+                const sessionDate = parseSessionDate(session);
+                if (sessionDate > now) {
+                    return { ...session, dateObj: sessionDate };
+                }
+            }
+            return null;
+        }
+
+        function formatDate(date) {
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        function updateCountdown() {
+            const nextSession = getNextSession();
+
+            if (!nextSession) {
+                document.getElementById('sessionType').innerHTML = '';
+                document.getElementById('countdownDisplay').innerHTML = '<div class="no-sessions">All sessions have concluded</div>';
+                document.getElementById('sessionDatetime').innerHTML = '';
+                return;
+            }
+
+            const now = new Date();
+            const diff = nextSession.dateObj - now;
+
+            if (diff <= 0) {
+                // Session is happening now, find the next one
+                setTimeout(updateCountdown, 1000);
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const daysUnit = document.getElementById('daysUnit');
+            const hoursUnit = document.getElementById('hoursUnit');
+
+            // Hide days if 0 days
+            if (days === 0) {
+                daysUnit.style.display = 'none';
+            } else {
+                daysUnit.style.display = 'flex';
+                document.getElementById('days').textContent = String(days).padStart(2, '0');
+            }
+
+            // Hide hours if 0 days and 0 hours
+            if (days === 0 && hours === 0) {
+                hoursUnit.style.display = 'none';
+            } else {
+                hoursUnit.style.display = 'flex';
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            }
+
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+
+            const typeLabel = nextSession.extended
+                ? `<span class="session-time">${nextSession.label}</span> <span class="extended">(1hr - Extended)</span>`
+                : `<span class="session-time">${nextSession.label}</span>`;
+            document.getElementById('sessionType').innerHTML = typeLabel;
+        }
+
+        // Update countdown every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
