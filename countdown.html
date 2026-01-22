@@ -22,7 +22,7 @@
             padding: 3rem 4rem;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            max-width: 666.667px;
+            max-width: 700px;
             width: 100%;
         }
 
@@ -39,6 +39,21 @@
         }
 
         .session-label .session-time {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .current-session-notice {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: oklch(from var(--bg-base) calc(l + 0.1) 0.1 120 / 0.5);
+            border-radius: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .current-session-notice .session-time {
+            color: rgba(255, 255, 255, 1);
+            font-weight: bold;
             color: rgba(255, 255, 255, 0.9);
         }
 
@@ -114,6 +129,7 @@
     <div class="countdown-container">
         <div class="countdown-panel">
             <h1 class="welcome-title">Welcome to the Eighth Dimension</h1>
+            <div class="current-session-notice" id="currentSessionNotice" style="display: none;">Session starting now: <span class="session-time" id="currentSessionType"></span></div>
             <div class="session-label">Next Session: <span class="session-time" id="sessionType">Loading...</span></div>
 
             <div class="countdown-display" id="countdownDisplay">
@@ -135,7 +151,7 @@
                 </div>
             </div>
 
-            <p class="info-text" id="infoText">Please wait here until your session begins.</p>
+            <p class="info-text" id="infoText">Please wait here until your session begins. <br>We will come assist you when the current session is over.</p>
         </div>
     </div>
 
@@ -151,7 +167,6 @@
 
         // Session schedule - all times in local timezone
         const sessions = [
-            { date: '2026-01-21', time: '16:45', label: '7:30 pm - 8:00 pm', extended: false },
             { date: '2026-01-28', time: '19:30', label: '7:30 pm - 8:00 pm', extended: false },
             { date: '2026-01-28', time: '20:00', label: '8:00 pm - 9:00 pm', extended: true },
             { date: '2026-01-29', time: '19:30', label: '7:30 pm - 8:00 pm', extended: false },
@@ -190,7 +205,21 @@
             for (const session of sessions) {
                 const sessionDate = parseSessionDate(session);
                 if (sessionDate > now) {
-                    return { ...session, dateObj: sessionDate };
+                    return { ...session, dateObj: sessionDate, isCurrentlyRunning: false };
+                }
+            }
+            return null;
+        }
+
+        function getCurrentSession() {
+            const now = new Date();
+            for (const session of sessions) {
+                const sessionStart = parseSessionDate(session);
+                // 6 minute grace period
+                const gracePeriodEnd = new Date(sessionStart.getTime() + 6 * 60 * 1000);
+
+                if (now >= sessionStart && now < gracePeriodEnd) {
+                    return { ...session, dateObj: sessionStart, isCurrentlyRunning: true };
                 }
             }
             return null;
@@ -207,12 +236,25 @@
         }
 
         function updateCountdown() {
+            const currentSession = getCurrentSession();
             const nextSession = getNextSession();
+            const currentSessionNotice = document.getElementById('currentSessionNotice');
 
+            // Current session notice
+            if (currentSession) {
+                const currentTypeLabel = currentSession.extended
+                    ? `<span class="session-time">${currentSession.label}</span> <span class="extended">(1hr - Extended)</span>`
+                    : `<span class="session-time">${currentSession.label}</span>`;
+                document.getElementById('currentSessionType').innerHTML = currentTypeLabel;
+                currentSessionNotice.style.display = 'block';
+            } else {
+                currentSessionNotice.style.display = 'none';
+            }
+
+            // Next session countdown
             if (!nextSession) {
                 document.getElementById('sessionType').innerHTML = '';
                 document.getElementById('countdownDisplay').innerHTML = '<div class="no-sessions">All sessions have concluded</div>';
-                document.getElementById('sessionDatetime').innerHTML = '';
                 return;
             }
 
