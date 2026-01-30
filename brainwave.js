@@ -1,6 +1,7 @@
 // Brainwave data fetching and display functionality with fortune integration
 
-const weighting_power = 0.6;
+const weighting_power = 0.5;
+const dominant_cutoff = 0.225;
 
 // Multi-sine wave brainwave generation with frequency weighting
 function generateFrequencyWeightedWave(brainwaveType, amplitude, width = 80, height = 60) {
@@ -1200,8 +1201,8 @@ function getDominantPattern(brainwaves, mlAnalysis, activenessArray) {
     // Apply frequency-based weighting
     alpha *= Math.pow((8 + 12) / 2, weighting_power);
     beta *= Math.pow((12 + 30) / 2, weighting_power);
-    gamma *= Math.pow((30 + 48) / 2, weighting_power);
-    delta *= Math.pow(1 / 2, weighting_power);
+    gamma *= Math.pow(30, weighting_power);
+    delta *= Math.pow(0.5, weighting_power);
     theta *= Math.pow((4 + 8) / 2, weighting_power);
 
     const total = alpha + beta + gamma + delta + theta;
@@ -1218,7 +1219,7 @@ function getDominantPattern(brainwaves, mlAnalysis, activenessArray) {
     let maxValue = 0;
 
     for (const [wave, value] of Object.entries(waves)) {
-        if (value > maxValue && value > 0.25) {
+        if (value > maxValue && value > dominant_cutoff) {
             maxValue = value;
             maxWave = wave;
         }
