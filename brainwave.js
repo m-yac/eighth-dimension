@@ -1,7 +1,7 @@
 // Brainwave data fetching and display functionality with fortune integration
 
-const weighting_power = 0.5;
-const dominant_cutoff = 0.225;
+const weighting_power = 0.57;
+const dominant_cutoff = 0.2;
 
 // Multi-sine wave brainwave generation with frequency weighting
 function generateFrequencyWeightedWave(brainwaveType, amplitude, width = 80, height = 60) {
