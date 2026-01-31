@@ -1369,8 +1369,8 @@ function updateBrainwaveDisplay(brainwaves, mlAnalysis, timestamp, numDataPoints
     let adjustedBrainwaves = {
         alpha: brainwaves.alpha * Math.pow((8 + 12) / 2, weighting_power),
         beta: brainwaves.beta * Math.pow((12 + 30) / 2, weighting_power),
-        gamma: brainwaves.gamma * Math.pow((30 + 48) / 2, weighting_power),
-        delta: brainwaves.delta * Math.pow(1, weighting_power),
+        gamma: brainwaves.gamma * Math.pow(30, weighting_power),
+        delta: brainwaves.delta * Math.pow(0.5, weighting_power),
         theta: brainwaves.theta * Math.pow((4 + 8) / 2, weighting_power)
     };
 
